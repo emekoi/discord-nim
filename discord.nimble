@@ -1,10 +1,14 @@
 # Package
 
-version       = "2.0.0"
-author        = "Krognol"
-description   = "Discord library for nim"
+version       = "0.0.1"
+author        = "emekoi"
+description   = "discord library for nim"
 license       = "MIT"
+srcDir        = "src"
+skipDirs      = @["examples", "docs"]
 
 # Dependencies
 
-requires "nim >= 0.17.0", "zip >= 0.1.1"
+requires "nim >= 0.18.0"
+requires "websocket >= 0.3.1"
+requires "zip >= 0.1.1"
