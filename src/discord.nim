@@ -78,7 +78,7 @@ const
         permAdministrator
 
 
-method getGateway(s: Shard): Future[tuple[url: string, sc: int]] {.base, async, gcsafe.} =
+proc getGateway(s: Shard): Future[tuple[url: string, sc: int]] {.async, gcsafe.} =
     var url = gateway()
     let res = await s.request(url, "GET", url, "application/json", "", 0)
     let body = await res.body()
@@ -95,7 +95,7 @@ type
         afk: bool
         status: string
 
-method updateStreamingStatus*(s: Shard, idle: int = 0, game: string, url: string = "", status: string = "online") {.base, async, gcsafe.} =
+proc updateStreamingStatus*(s: Shard, idle: int = 0, game: string, url: string = "", status: string = "online") {.async, gcsafe.} =
     ## Updates the `Playing ...` message of the current user.
     if s.connection.sock.isClosed(): return
     var data = UpdateStatusData(status: status, afk: false)
@@ -115,11 +115,11 @@ method updateStreamingStatus*(s: Shard, idle: int = 0, game: string, url: string
     }
     await s.connection.sock.sendText($payload, true)
 
-method updateStatus*(s: Shard, idle: int = 0, game: string = "") {.base, gcsafe, async, inline.} =
+proc updateStatus*(s: Shard, idle: int = 0, game: string = "") {.gcsafe, async, inline.} =
     asyncCheck s.updateStreamingStatus(idle, game, "")
 
 # I'd like to make this prettier if at all possible
-method initEvents(s: DiscordClient) {.base, gcsafe.} = 
+proc initEvents(s: DiscordClient) {.gcsafe.} = 
     s.addHandler(channel_create, proc(s: Shard, p: ChannelCreate) = return)
     s.addHandler(channel_update, proc(s: Shard, p: ChannelUpdate) = return)
     s.addHandler(channel_delete, proc(s: Shard, p: ChannelDelete) = return)
@@ -169,7 +169,7 @@ proc newDiscordClient*(token: string): DiscordClient {.gcsafe.} =
 
     result.initEvents()
 
-method addShard*(d: DiscordClient): Shard {.base, gcsafe.} = 
+proc addShard*(d: DiscordClient): Shard {.gcsafe.} = 
     ## Creates a new Shard
     result = Shard(
             compress: false, 
@@ -195,7 +195,7 @@ method addShard*(d: DiscordClient): Shard {.base, gcsafe.} =
 type
   IdentifyError* = object of Exception
 
-method handleDispatch(s: Shard, event: string, data: JsonNode) {.async, gcsafe, base.} =
+proc handleDispatch(s: Shard, event: string, data: JsonNode) {.async, gcsafe.} =
     case event:
         of "READY":
             let payload = newReady(data)
@@ -320,7 +320,7 @@ method handleDispatch(s: Shard, event: string, data: JsonNode) {.async, gcsafe, 
         else:
             echo "Unknown websocket event :: " & event & "\c\L" & $data
 
-method identify(s: Shard) {.async, gcsafe, base.} =
+proc identify(s: Shard) {.async, gcsafe.} =
     var properties = %*{
         "$os": system.hostOS,
         "$browser": "Discordnim v"&VERSION,
@@ -347,7 +347,7 @@ method identify(s: Shard) {.async, gcsafe, base.} =
     except:
         echo "Error sending identify packet\n" & getCurrentExceptionMsg()
 
-method resume(s: Shard) {.async, gcsafe, base.} =
+proc resume(s: Shard) {.async, gcsafe.} =
     let payload = %*{
         "token": s.token,
         "session_id": s.session_id,
@@ -355,7 +355,7 @@ method resume(s: Shard) {.async, gcsafe, base.} =
     }
     await s.connection.sock.sendText($payload, true)
 
-method reconnect(s: Shard) {.async, gcsafe, base.} =
+proc reconnect(s: Shard) {.async, gcsafe.} =
     await s.connection.close()
     try:
         s.connection = await newAsyncWebsocket("gateway.discord.gg", Port 443, "/"&GATEWAYVERSION, ssl = true)
@@ -365,9 +365,9 @@ method reconnect(s: Shard) {.async, gcsafe, base.} =
     s.session_ID = ""
     await s.identify()
 
-method shouldResumeSession(s: Shard): bool {.gcsafe, inline, base.} = (not s.invalidated) and (not s.suspended)
+proc shouldResumeSession(s: Shard): bool {.gcsafe, inline.} = (not s.invalidated) and (not s.suspended)
 
-method setupHeartbeats(s: Shard) {.async, gcsafe, base.} =
+proc setupHeartbeats(s: Shard) {.async, gcsafe.} =
     while not s.stop and not s.connection.sock.isClosed:
         var hb = %*{"op": opHeartbeat, "d": s.sequence}
         try:
@@ -442,20 +442,20 @@ proc sessionHandleSocketMessage(s: Shard) {.gcsafe, async, thread.} =
     echo "Disconnected..."
     cast[proc(s: Shard){.cdecl.}](s.client.handlers[on_disconnect])(s)
 
-method disconnect*(s: Shard) {.gcsafe, base, async.} =
+proc disconnect*(s: Shard) {.gcsafe, async.} =
     ## Disconnects a shard
     s.stop = true
     s.cache.clear()
     await s.connection.close() # Does not seem to send the close code properly?
 
-method disconnect*(d: DiscordClient) {.gcsafe, base, async.} =
+proc disconnect*(d: DiscordClient) {.gcsafe, async.} =
     ## Disconnects all shards the client holds
     for shard in d.shards:
         asyncCheck shard.disconnect()
     d.handlers.clear()
     d.stop = true
 
-method startSession*(s: Shard) {.base, async, gcsafe.} =
+proc startSession*(s: Shard) {.async, gcsafe.} =
     ## Connects a Shard
     if s.connection != nil:
         echo "Shard is already connected"
@@ -477,7 +477,7 @@ method startSession*(s: Shard) {.base, async, gcsafe.} =
     
     await sessionHandleSocketMessage(s)
 
-method startSession*(d: DiscordClient) {.base, gcsafe, async.} =
+proc startSession*(d: DiscordClient) {.gcsafe, async.} =
     ## Connects all shards the client holds.
     for shard in d.shards:
         asyncCheck shard.startSession()

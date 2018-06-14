@@ -36,7 +36,7 @@ proc someMessageCreateProc(s: Session, m: MessageCreate) =
 
 let client = newDiscordClient("Bot <your token>")
 let shard = client.addShard()
-## Add your gateway event methods
+## Add your gateway event procedures
 shard.addHandler(EventType.message_create, someMessageCreateProc)
 shard.compress = true
 
