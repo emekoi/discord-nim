@@ -405,7 +405,7 @@ proc sessionHandleSocketMessage(s: Shard) {.gcsafe, async, thread.} =
             if res.opcode == Opcode.Binary:
                 let t = zlib.uncompress(res.data)
                 if t.len == 0:
-                    echo "Failed to uncompress data and I'm not sure why. Sorry."
+                    raise newException(ZlibStreamError, "failed to uncompress data.")
                 else: res.data = t
         
         let data = parseJson(res.data)
