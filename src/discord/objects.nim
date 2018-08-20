@@ -5,10 +5,8 @@
 ##  under the terms of the MIT license. See LICENSE for details.
 ##
 
-import
-    json, tables, locks, times,
-    httpclient, strutils, asyncdispatch,
-    marshal, sequtils, private/websocket/client
+import json, tables, locks, websocket/[client, shared], times
+import httpclient, strutils, asyncdispatch, marshal, sequtils
 
 {.hint[XDeclaredButNotUsed]: off.}
 
@@ -23,7 +21,7 @@ type
         global: RateLimit
         endpoints: Table[string, RateLimit]
 
-method preCheck(r: RateLimit) {.async, gcsafe, base.} =
+proc preCheck(r: RateLimit) {.async, gcsafe.} =
     if r.limit == 0: return
     
     let diff = r.reset - getTime().toSeconds.int64
@@ -39,7 +37,7 @@ method preCheck(r: RateLimit) {.async, gcsafe, base.} =
     
     r.remaining.dec
 
-method postUpdate(r: RateLimit, url: string, response: AsyncResponse): Future[bool] {.async, gcsafe, base.} =
+proc postUpdate(r: RateLimit, url: string, response: AsyncResponse): Future[bool] {.async, gcsafe.} =
     if response.headers.hasKey("X-RateLimit-Reset"): r.reset = response.headers["X-RateLimit-Reset"].parseInt
     if response.headers.hasKey("X-RateLimit-Limit"): r.limit = response.headers["X-RateLimit-Limit"].parseInt
     if response.headers.hasKey("X-RateLimit-Remaining"): r.remaining = response.headers["X-RateLimit-Remaining"].parseInt
@@ -51,7 +49,7 @@ method postUpdate(r: RateLimit, url: string, response: AsyncResponse): Future[bo
         await sleepAsync delay+100
         result = true
 
-method postUpdate(r: RateLimits, url: string, response: AsyncResponse): Future[bool] {.async, gcsafe, base.} =
+proc postUpdate(r: RateLimits, url: string, response: AsyncResponse): Future[bool] {.async, gcsafe.} =
     if response.headers.hasKey("X-RateLimit-Global"):
         initLock(r.global.lock)
         result = await r.global.postUpdate(url, response)
@@ -62,7 +60,7 @@ method postUpdate(r: RateLimits, url: string, response: AsyncResponse): Future[b
         result = await rl.postUpdate(url, response)
         deinitLock(rl.lock)
 
-method preCheck(r: RateLimits, url: string) {.async, gcsafe, base.} =
+proc preCheck(r: RateLimits, url: string) {.async, gcsafe.} =
     initLock(r.global.lock)
     await r.global.preCheck()
     deinitLock(r.global.lock)
@@ -178,7 +176,7 @@ type
         video*: EmbedVideo
         provider*: EmbedProvider
         author*: EmbedAuthor
-        fields*: seq[EmbedField] not nil
+        fields*: seq[EmbedField]
     EmbedThumbnail* = object
         url*: string
         proxy_url*: string
@@ -593,13 +591,13 @@ type
         shards*: seq[Shard]
         handlers: Table[EventType, pointer]
     
-method addHandler*(d: DiscordClient, t: EventType, p: pointer) {.gcsafe, base, inline.} =
+proc addHandler*(d: DiscordClient, t: EventType, p: pointer) {.gcsafe, inline.} =
     ## Adds a handler tied to a websocket event
     initLock(d.mut)
     d.handlers[t] = p
     deinitLock(d.mut)
 
-method removeHandler*(d: DiscordClient, t: EventType) {.gcsafe, base, inline.} =
+proc removeHandler*(d: DiscordClient, t: EventType) {.gcsafe, inline.} =
     ## Removes a websocket event handler
     initLock(d.mut)
     d.handlers.del(t)
