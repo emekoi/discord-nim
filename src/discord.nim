@@ -12,7 +12,7 @@ import
     marshal, json, cgi, asyncdispatch,
     asyncnet, uri, zip/zlib,
     discord/objects, discord/endpoints,
-    discord/private/websocket/shared
+    websocket/shared
        
 # Gateway op codes
 {.hint[XDeclaredButNotUsed]: off.}
@@ -404,7 +404,7 @@ proc sessionHandleSocketMessage(s: Shard) {.gcsafe, async, thread.} =
         if s.compress:
             if res.opcode == Opcode.Binary:
                 let t = zlib.uncompress(res.data)
-                if t == nil:
+                if t.len == 0:
                     echo "Failed to uncompress data and I'm not sure why. Sorry."
                 else: res.data = t
         

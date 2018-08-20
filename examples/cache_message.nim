@@ -5,9 +5,9 @@
 ##  under the terms of the MIT license. See LICENSE for details.
 ##
 
-import asyncdispatch, ospaths, tables, ../src/discord
+import asyncdispatch, ospaths, tables, discord
 
-const DISCORD_TOKEN = getEnv("DISCORD_TOKEN")
+let DISCORD_TOKEN = getEnv("DISCORD_TOKEN")
 
 if DISCORD_TOKEN == "":
   raise newException(Exception, "no DISCORD_TOKEN env variable found")

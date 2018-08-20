@@ -15,7 +15,7 @@ Copyright (c) 2006-2018 by Andreas Rumpf
 active boot switches: -d:release
 ```
 
-`nimble install discordnim`
+`nimble install https://github.com/emekoi/discord-nim`
 
 # Usage
 

@@ -10,4 +10,4 @@ srcDir        = "src"
 
 requires "nim >= 0.18.0"
 requires "zip >= 0.1.1"
-requires "websocket" >= 0.3.1"
+requires "websocket >= 0.3.1"

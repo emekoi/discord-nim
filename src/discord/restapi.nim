@@ -351,7 +351,7 @@ proc channelFileSendWithMessage*(s: Shard, channelid, name, fbody, message: stri
     let payload = %*{"content": message}
     var contenttype: string
     let (_, fname, ext) = splitFile(name)
-    if ext.len > 0: contenttype = newMimetypes().getMimetype(ext[1..high(ext)], nil)
+    if ext.len > 0: contenttype = newMimetypes().getMimetype(ext[1..high(ext)], "")
     
     data.add(name, fbody, fname & ext, contenttype)
     data.add("payload_json", $payload, contentType = "application/json")
@@ -1130,7 +1130,7 @@ proc defaultAvatar*(u: User): string =
     ## Returns the avatar url of the user.
     ##
     ## If the user doesn't have an avatar it returns the users default avatar.
-    if u.avatar.isNilOrEmpty():
+    if u.avatar.len == 0:
         result = "https://cdn.discordapp.com/embed/avatars/$1.png" % [$(u.discriminator.parseInt mod 5)]
     else: 
         if u.avatar.startsWith("a_"):
@@ -1143,7 +1143,7 @@ proc stripMentions*(msg: Message): string {.gcsafe.} =
     ## and replaces them with plaintext
     ##
     ## e.g: <@1901092738173> -> @Username#1234
-    if msg.mentions == nil or msg.mentions.len == 0: return msg.content
+    if msg.mentions.len == 0: return msg.content
 
     result = msg.content
 
@@ -1205,7 +1205,7 @@ proc newGuildMemberParams*(nick, channelid: string = "",
     )
 
 proc newWebhookParams*(content, username, avatarurl: string = "", 
-                       tts: bool = false, embeds: seq[Embed] = nil): WebhookParams {.gcsafe, inline.} =
+                       tts: bool = false, embeds: seq[Embed] = @[]): WebhookParams {.gcsafe, inline.} =
     ## Initialises a new WebhookParams object
     ## for altering webhooks.
     result = WebhookParams(
