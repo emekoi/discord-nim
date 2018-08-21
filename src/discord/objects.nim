@@ -16,6 +16,7 @@ type
         reset: int64
         limit: int64
         remaining: int64
+        
     RateLimits = ref object of RootObj
         lock: Lock
         global: RateLimit
@@ -117,6 +118,7 @@ type
         `type`*: string
         allow*: int
         deny*: int
+
     DChannel* = object of RootObj
         id*: string
         guild_id*: string
@@ -135,6 +137,7 @@ type
         icon*: string
         owner_id*: string
         application_id*: string
+
     Message* = object of RootObj
         `type`: int
         tts*: bool
@@ -153,16 +156,19 @@ type
         attachments*: seq[Attachment]
         reactions*: seq[Reaction]
         webhook_id*: string
+
     Reaction* = object
         count*: int
         me*: bool
         emoji*: Emoji
+
     Emoji* = object
         id*: string
         name*: string
         roles*: seq[string]
         require_colons*: bool
         managed*: bool
+
     Embed* = object
         title*: string
         `type`*: string
@@ -177,36 +183,44 @@ type
         provider*: EmbedProvider
         author*: EmbedAuthor
         fields*: seq[EmbedField]
+
     EmbedThumbnail* = object
         url*: string
         proxy_url*: string
         height*: int
         width*: int
+
     EmbedVideo* = object
         url*: string
         height*: int
         width*: int
+
     EmbedImage* = object
         url*: string
         proxy_url*: string
         height*: int
         width*: int
+
     EmbedProvider* = object
         name*: string
         url*: string
+
     EmbedAuthor* = object
         name*: string
         url*: string
         icon_url*: string
         proxy_icon_url*: string
+
     EmbedFooter* = object
         text*: string
         icon_url*: string
         proxy_icon_url*: string
+
     EmbedField* = object
         name*: string
         value*: string
         inline*: bool
+
     Attachment* = object
         id*: string
         filename*: string
@@ -215,11 +229,13 @@ type
         proxy_url*: string
         height*: int
         width*: int
+
     Presence* = object
         since*: int
         afk*: bool
         game*: Game
         status*: string
+
     Guild* = object of RootObj
         id*: string
         name*: string
@@ -249,6 +265,7 @@ type
         application_id*: string
         widget_channel_id*: string
         widget_enabled*: bool
+
     GuildMember* = object of RootObj
         guild_id*: string
         user*: User
@@ -257,6 +274,7 @@ type
         joined_at*: string
         deaf*: bool
         mute*: bool
+
     Integration* = object
         id*: string
         name*: string
@@ -269,13 +287,16 @@ type
         user*: User
         account*: Account
         synced_at*: string
+
     Account* = object
         id*: string
         name*: string
+
     Invite* = object
         code*: string
         guild*: InviteGuild
         channel*: InviteChannel
+
     InviteMetadata* = object
         inviter*: User
         uses*: int
@@ -289,10 +310,12 @@ type
         name*: string
         splash*: string
         icon*: string
+
     InviteChannel* = object
         id*: string
         name*: string
         `type`*: int
+
     User* = object of RootObj
         id*: string
         guild_id: string
@@ -303,18 +326,21 @@ type
         mfa_enabled*: bool
         verified*: bool
         email*: string
+
     UserGuild* = object
         id*: string
         name*: string
         icon*: string
         owner*: bool
         permissions*: int
+
     Connection* = object
         id*: string
         name*: string
         `type`*: string
         revoked*: bool
         integrations*: seq[Integration]
+
     VoiceState* = object of RootObj
         guild_id*: string
         channel_id*: string
@@ -325,6 +351,7 @@ type
         self_deaf*: bool
         self_mute*: bool
         suppress*: bool
+
     VoiceRegion* = object
         id*: string
         name*: string
@@ -334,6 +361,7 @@ type
         optimal*: bool
         deprecated*: bool
         custom*: bool
+
     Webhook* = object
         id*: string
         guild_id*: string
@@ -342,6 +370,7 @@ type
         name*: string
         avatar*: string
         token*: string
+
     Role* = object
         id*: string
         name*: string
@@ -351,12 +380,14 @@ type
         permissions*: int
         managed*: bool
         mentionable*: bool
+
     ChannelParams* = ref object
         name*: string
         position*: int
         topic*: string
         bitrate*: int
         user_limit*: int
+
     GuildParams* = ref object
         name*: string
         region*: string
@@ -367,35 +398,44 @@ type
         icon*: string
         owner_id*: string
         splash*: string
+
     GuildMemberParams* = ref object
         nick*: string
         roles*: seq[string]
         mute*: bool
         deaf*: bool
         channel_id*: string
+
     GuildEmbed* = object
         enabled*: bool
         channel_id*: string
+
     WebhookParams* = ref object
         content*: string
         username*: string
         avatar_url*: string
         tts*: bool
         embeds*: seq[Embed]
+
     GuildEmojisUpdate* = object
         guild_id*: string
         emojis*: seq[Emoji]
+
     GuildIntegrationsUpdate* = object
         guild_id*: string
+
     GuildRoleCreate* = object
         guild_id*: string
         role*: Role
+
     GuildRoleUpdate* = object
         guild_id*: string
         role*: Role
+
     GuildRoleDelete* = object
         guild_id*: string
         role_id*: string
+
     AuditLogOptions* = object
         delete_members_days*: string
         members_removed*: string
@@ -404,6 +444,7 @@ type
         id*: string
         `type`*: string
         role_name*: string
+
     AuditLogChangeKind* = enum
         ALCString,
         ALCInt,
@@ -412,6 +453,7 @@ type
         ALCOverwrites,
         ALCNil
     AuditLogChangeValue* = ref AuditLogChangeValueObj
+
     AuditLogChangeValueObj* = object
         case kind*: AuditLogChangeKind
         of ALCString:
@@ -426,10 +468,12 @@ type
             overwrites*: seq[Overwrite]
         of ALCNil:
             nil
+
     AuditLogChange* = object
         new_value*: AuditLogChangeValue
         old_value*: AuditLogChangeValue 
         key*: string
+
     AuditLogEntry* = object
         target_id*: string
         changes*: seq[AuditLogChange]
@@ -437,18 +481,22 @@ type
         id*: string
         action_type*: int
         options*: AuditLogOptions
+
     AuditLog* = object
         webhooks*: seq[Webhook]
         users*: seq[User]
         audit_log_entries*: seq[AuditLogEntry]
+
     MessageDeleteBulk* = object
         ids*: seq[string]
         channel_id*: string
+
     Game* = object of RootObj
         name*: string
         `type`*: int
         url*: string
         # session_id: string # Should appear at some point in the payload
+
     PresenceUpdate* = object
         user*: User
         nick: string
@@ -456,21 +504,26 @@ type
         game*: Game
         guild_id*: string
         status*: string
+
     TypingStart* = object
         channel_id*: string
         user_id*: string
         timestamp*: int
+
     VoiceServerUpdate* = object
         token: string
         guild_id: string
         endpoint: string
+
     VoiceConnection* = object
         sampleRate: uint
         frameSize: uint16
         channels: uint8
         volume: float
+
     Resumed* = object
         trace*: seq[string]
+
     Cache* = ref object
         lock: Lock
         version*: int
@@ -486,6 +539,7 @@ type
         members: Table[string, GuildMember]
         roles: Table[string, Role]
         ready: Ready
+
     Ready* = object
         v*: int
         user*: User
@@ -494,41 +548,65 @@ type
         guilds*: seq[Guild]
         trace*: seq[string] 
         presences*: seq[Presence]
+
     Pin* = object of RootObj
         last_pin_timestamp*: string
         channel_id*: string
+
     MessageCreate* = Message
+
     MessageUpdate* = Message
+
     MessageDelete* = Message
+
     GuildMemberAdd* = GuildMember
+
     GuildMemberUpdate* = GuildMember
+
     GuildMemberRemove* = GuildMember
+
     GuildMembersChunk* = object
         guild_id*: string
         members*: seq[GuildMember]
+
     GuildCreate* = Guild
+
     GuildUpdate* = Guild
+
     GuildDelete* = object
         id*: string
         unavailable*: bool
+
     GuildBanAdd* = User
+
     GuildBanRemove* = User
+
     ChannelCreate* = DChannel
+
     ChannelUpdate* = DChannel
+
     ChannelDelete* = DChannel
+
     ChannelPinsUpdate* = object of Pin
+
     UserUpdate* = User
+
     VoiceStateUpdate* = VoiceState
+
     MessageReactionAdd* = object of RootObj
         user_id*: string
         message_id*: string
         channel_id*: string
         emoji*: Emoji
+
     MessageReactionRemove* = MessageReactionAdd
+
     MessageReactionRemoveAll* = object
         message_id*: string
         channel_id*: string
+
     WebhooksUpdate = Webhook
+
     EventType* = enum
         channel_create
         channel_update
@@ -564,7 +642,9 @@ type
         on_resume
         on_ready
         on_disconnect
+
     Shard* = ref ShardImpl
+
     ShardImpl = object
         shouldResume: bool
         suspended: bool
@@ -582,6 +662,7 @@ type
         client: DiscordClient
         connection*: AsyncWebSocket
         voiceConnections: seq[VoiceConnection] # Does not work yet
+
     DiscordClient* = ref object
         stop: bool
         shardCount*: int

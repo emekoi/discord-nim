@@ -198,7 +198,7 @@ proc addShard*(d: DiscordClient): Shard {.gcsafe.} =
         )
 
     let gateway = waitFor result.getGateway()
-    result.gateway = gateway.url.strip&"/"&GATEWAYVERSION
+    result.gateway = gateway.url.strip & "/" & GATEWAYVERSION
     d.shardCount = gateway.sc
     d.shards.add(result)
 
@@ -334,8 +334,8 @@ proc handleDispatch(s: Shard, event: string, data: JsonNode) {.async, gcsafe.} =
 proc identify(s: Shard) {.async, gcsafe.} =
     var properties = %*{
         "$os": system.hostOS,
-        "$browser": "Discordnim v"&VERSION,
-        "$device": "Discordnim v"&VERSION,
+        "$browser": "discord-nim v" & VERSION,
+        "$device": "discord-nim v" & VERSION,
         "$referrer": "",
         "$referring_domain": ""
     }
@@ -369,7 +369,7 @@ proc resume(s: Shard) {.async, gcsafe.} =
 proc reconnect(s: Shard) {.async, gcsafe.} =
     await s.connection.close()
     try:
-        s.connection = await newAsyncWebsocket("gateway.discord.gg", Port 443, "/"&GATEWAYVERSION, ssl = true)
+        s.connection = await newAsyncWebsocketClient("gateway.discord.gg", Port 443, "/" & GATEWAYVERSION, ssl = true)
     except:
         raise getCurrentException()
     s.sequence = 0
@@ -403,7 +403,7 @@ proc sessionHandleSocketMessage(s: Shard) {.gcsafe, async, thread.} =
         
         if s.compress:
             if res.opcode == Opcode.Binary:
-                let t = zlib.uncompress(res.data)
+                let t = zlib.uncompress(res.data, ZLIB_STREAM)
                 if t.len == 0:
                     raise newException(ZlibStreamError, "failed to uncompress data.")
                 else: res.data = t
@@ -474,12 +474,12 @@ proc startSession*(s: Shard) {.async, gcsafe.} =
     s.suspended = true
     try:
         let wsurl = parseUri(s.gateway)
-        let socket = await newAsyncWebsocket(
+        let socket = await newAsyncWebsocketClient(
                 wsurl.hostname, 
                 if wsurl.scheme == "wss": Port(443) else: Port(80), 
-                wsurl.path&GATEWAYVERSION, 
+                wsurl.path & GATEWAYVERSION, 
                 ssl = true, 
-                useragent = "Discordnim (https://github.com/Krognol/discordnim v"&VERSION&")"
+                useragent = "discord-nim (https://github.com/emekoi/discord-nim v" & VERSION & ")"
             )
         s.connection = socket
     except:
