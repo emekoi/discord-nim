@@ -403,10 +403,16 @@ proc sessionHandleSocketMessage(s: Shard) {.gcsafe, async, thread.} =
         
         if s.compress:
             if res.opcode == Opcode.Binary:
-                let t = zlib.uncompress(res.data, ZLIB_STREAM)
-                if t.len == 0:
-                    raise newException(ZlibStreamError, "failed to uncompress data.")
-                else: res.data = t
+                # ORIGINAL
+                # ========
+                # let t = zlib.uncompress(res.data, ZLIB_STREAM)
+                # if t.len == 0:
+                #     raise newException(ZlibStreamError, "failed to uncompress data.")
+                # else: res.data = t
+
+                # MODIFIED
+                # ========
+                res.data.inflate(ZLIB_STREAM)
         
         let data = parseJson(res.data)
          
